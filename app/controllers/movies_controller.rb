@@ -17,14 +17,12 @@ class MoviesController < ApplicationController
   def title
     @movies = Movie.order(:title)
     @title_header_class = "hilite"
-    flash[:notice] = "Movies ordered by title."
     render :index
   end
   
   def release_date
     @movies = Movie.order(:release_date)
     @release_date_header_class = "hilite"
-    flash[:notice] = "Movies ordered by release date."
     render :index
   end
 
