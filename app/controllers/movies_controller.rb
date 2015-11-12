@@ -11,19 +11,16 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
-  end
-
-  def title
-    @movies = Movie.order(:title)
-    @title_header_class = "hilite"
-    render :index
-  end
-  
-  def release_date
-    @movies = Movie.order(:release_date)
-    @release_date_header_class = "hilite"
-    render :index
+    sort = params[:sort] # retrieve movie ID from URI route
+    if sort == "title"
+      @movies = Movie.order(:title)
+      @title_header_class = "hilite"
+    elsif sort == "release_date"
+      @movies = Movie.order(:release_date)
+      @release_date_header_class = "hilite"
+    else
+      @movies = Movie.all
+    end
   end
 
   def new
