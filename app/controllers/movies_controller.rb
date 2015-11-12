@@ -12,15 +12,20 @@ class MoviesController < ApplicationController
 
   def index
     sort = params[:sort] # retrieve movie ID from URI route
+    @checked = {}
     if sort == "title"
       @movies = Movie.order(:title)
       @title_header_class = "hilite"
     elsif sort == "release_date"
       @movies = Movie.order(:release_date)
       @release_date_header_class = "hilite"
+    elsif params[:ratings] != nil
+      @movies = Movie.where("rating IN (?)", params[:ratings].keys)
+      params[:ratings].keys.each  do |key|
+        @checked[key] = true
+      end
     else
       @movies = Movie.all
-      flash[:notice] = "#{params[:ratings].keys}"
     end
     @all_ratings = Movie.getRatings
   end
