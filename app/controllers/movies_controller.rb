@@ -20,7 +20,9 @@ class MoviesController < ApplicationController
       @release_date_header_class = "hilite"
     else
       @movies = Movie.all
+      flash[:notice] = "#{params[:ratings].keys}"
     end
+    @all_ratings = Movie.getRatings
   end
 
   def new
