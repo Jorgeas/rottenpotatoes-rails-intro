@@ -11,58 +11,50 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # all rating values
+    @all_ratings = Movie.getRatings
+
     # read sort from params, then session
-    sort = !params[:sort].nil? ? params[:sort] : session[:sort]
+    if !params[:sort].nil?
+      sort = params[:sort]
+      # if came in params set in session
+      session[:sort] = sort
+    else
+      sort = session[:sort]
+    end
+
     # read checked from params, then session, then database
     if !params[:ratings].nil? 
-      @checked = params[:ratings].keys
-    elsif !session[:checked].nil?
-      @checked = session[:checked]
+      @checked = params[:ratings]
+      # setting in session
+      session[:checked] = @checked
     else
-      @checked = Movie.getRatings
+      if !session[:checked].nil?
+        @checked = session[:checked]
+      else
+        @checked = {}
+        Movie.getRatings.each do |rating|
+          @checked[rating] = 1
+        end
+      end
+      # redirect
+      flash.keep
+      redirect_to movies_path(:ratings => @checked, :sort => sort)
     end
     
-    # get movies
+    # get movies and sorting style
     if !sort.nil?
-      @movies = Movie.where("rating IN (?)", @checked).order(sort)
-    else
-      @movies = Movie.where("rating IN (?)", @checked)
-    end
-    
-    # sorting style
-    if !sort.nil?
+      @movies = Movie.where("rating IN (?)", @checked.keys).order(sort)
+      # sorting style
       if sort == 'title'
         @title_header_class = 'hilite'
       else
         @release_date_header_class = 'hilite'
       end
+    else
+      @movies = Movie.where("rating IN (?)", @checked.keys)
     end
     
-=begin
-    if sort == 'title'
-      @movies = Movie.order(:title)
-      @title_header_class = 'hilite'
-      @checked = session[:checked]
-      session[:sort] = 'title'
-    elsif sort == 'release_date'
-      @movies = Movie.order(:release_date)
-      @release_date_header_class = 'hilite'
-      @checked = session[:checked]
-      session[:sort] = 'release_date'
-    elsif params[:ratings] != nil
-      @movies = Movie.where("rating IN (?)", params[:ratings].keys)
-      @checked = params[:ratings].keys
-      session[:checked] = @checked
-    else
-      @movies = Movie.all
-      session.clear
-    end
-=end
-    # setting session
-    session[:sort] = sort
-    session[:checked] = @checked
-    # all rating values
-    @all_ratings = Movie.getRatings
   end
 
   def new
